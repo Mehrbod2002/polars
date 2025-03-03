@@ -28,6 +28,11 @@ impl fmt::Display for TreeFmtAExpr<'_> {
         let s = match self.0 {
             AExpr::Explode(_) => "explode",
             AExpr::Alias(_, name) => return write!(f, "alias({})", name),
+            AExpr::Columns(names) => &names
+                .iter()
+                .map(|c| format!("\"{}\"", c))
+                .collect::<Vec<_>>()
+                .join(", "),
             AExpr::Column(name) => return write!(f, "col({})", name),
             AExpr::Literal(lv) => return write!(f, "lit({lv:?})"),
             AExpr::BinaryExpr { op, .. } => return write!(f, "binary: {}", op),

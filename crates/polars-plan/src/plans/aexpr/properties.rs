@@ -35,7 +35,12 @@ impl AExpr {
 
             Literal(v) => v.is_scalar(),
 
-            Alias(_, _) | BinaryExpr { .. } | Column(_) | Ternary { .. } | Cast { .. } => true,
+            Alias(_, _)
+            | BinaryExpr { .. }
+            | Column(_)
+            | Columns(_)
+            | Ternary { .. }
+            | Cast { .. } => true,
 
             Agg { .. }
             | Explode(_)

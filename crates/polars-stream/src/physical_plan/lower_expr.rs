@@ -102,6 +102,7 @@ pub fn is_input_independent_rec(
     }
 
     let ret = match arena.get(expr_key) {
+        AExpr::Columns(_) => false,
         AExpr::Explode(inner)
         | AExpr::Alias(inner, _)
         | AExpr::Cast {
@@ -250,7 +251,7 @@ pub fn is_length_preserving_rec(
         | AExpr::Len
         | AExpr::Literal(_) => false,
 
-        AExpr::Column(_) => true,
+        AExpr::Column(_) | AExpr::Columns(_) => true,
 
         AExpr::Alias(inner, _)
         | AExpr::Cast {
@@ -512,6 +513,7 @@ fn lower_exprs_with_ctx(
                 transformed_exprs.push(ctx.expr_arena.add(AExpr::Column(exploded_name)));
             },
             AExpr::Alias(_, _) => unreachable!("alias found in physical plan"),
+            AExpr::Columns(_) => unreachable!("column should always be streamable"),
             AExpr::Column(_) => unreachable!("column should always be streamable"),
             AExpr::Literal(_) => {
                 let out_name = unique_column_name();

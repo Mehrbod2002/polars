@@ -39,6 +39,12 @@ pub struct Column {
 }
 
 #[pyclass]
+pub struct Columns {
+    #[pyo3(get)]
+    names: Vec<PyObject>,
+}
+
+#[pyclass]
 pub struct Literal {
     #[pyo3(get)]
     value: PyObject,
@@ -538,6 +544,13 @@ pub(crate) fn into_py(py: Python<'_>, expr: &AExpr) -> PyResult<PyObject> {
             name: name.into_py_any(py)?,
         }
         .into_py_any(py),
+        AExpr::Columns(columns) => Ok(Columns {
+            names: columns
+                .iter()
+                .map(|n| n.into_py_any(py))
+                .collect::<PyResult<_>>()?,
+        }
+        .into_py_any(py)?),
         AExpr::Column(name) => Column {
             name: name.into_py_any(py)?,
         }

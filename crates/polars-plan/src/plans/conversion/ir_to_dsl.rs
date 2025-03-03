@@ -12,6 +12,7 @@ pub fn node_to_expr(node: Node, expr_arena: &Arena<AExpr>) -> Expr {
             Expr::Alias(Arc::new(exp), name)
         },
         AExpr::Column(a) => Expr::Column(a),
+        AExpr::Columns(c) => Expr::Columns(c.into()),
         AExpr::Literal(s) => Expr::Literal(s),
         AExpr::BinaryExpr { left, op, right } => {
             let l = node_to_expr(left, expr_arena);

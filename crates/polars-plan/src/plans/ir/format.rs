@@ -538,6 +538,17 @@ impl Display for ExprIRDisplay<'_> {
                 let expr = self.with_root(expr);
                 write!(f, "{expr}.alias(\"{name}\")")
             },
+            Columns(columns) => {
+                write!(
+                    f,
+                    "cols([{}])",
+                    columns
+                        .iter()
+                        .map(|c| format!("\"{}\"", c))
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                )
+            },
             Column(name) => write!(f, "col(\"{name}\")"),
             Literal(v) => {
                 match v {

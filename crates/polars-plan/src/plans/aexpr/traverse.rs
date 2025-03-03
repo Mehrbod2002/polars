@@ -10,7 +10,7 @@ impl AExpr {
         use AExpr::*;
 
         match self {
-            Column(_) | Literal(_) | Len => {},
+            Column(_) | Columns(_) | Literal(_) | Len => {},
             Alias(e, _) => container.extend([*e]),
             BinaryExpr { left, op: _, right } => {
                 container.extend([*right, *left]);
@@ -68,7 +68,7 @@ impl AExpr {
     pub fn replace_inputs(mut self, inputs: &[Node]) -> Self {
         use AExpr::*;
         let input = match &mut self {
-            Column(_) | Literal(_) | Len => return self,
+            Column(_) | Columns(_) | Literal(_) | Len => return self,
             Alias(input, _) => input,
             Cast { expr, .. } => expr,
             Explode(input) => input,

@@ -100,6 +100,14 @@ fn try_lower_elementwise_scalar_agg_expr(
     match expr_arena.get(expr) {
         AExpr::Alias(..) => unreachable!("alias found in physical plan"),
 
+        AExpr::Columns(c) => {
+            if inside_agg {
+                Some(trans_input_cols[&c[0]])
+            } else {
+                // Implicit implode not yet supported.
+                None
+            }
+        },
         AExpr::Column(c) => {
             if inside_agg {
                 Some(trans_input_cols[c])

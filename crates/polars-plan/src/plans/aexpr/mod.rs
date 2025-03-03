@@ -145,6 +145,7 @@ pub enum AExpr {
     Explode(Node),
     Alias(Node, PlSmallStr),
     Column(PlSmallStr),
+    Columns(Vec<PlSmallStr>),
     Literal(LiteralValue),
     BinaryExpr {
         left: Node,

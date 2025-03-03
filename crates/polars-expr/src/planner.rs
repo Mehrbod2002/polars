@@ -306,6 +306,11 @@ fn create_physical_expr_inner(
                 is_scalar,
             )))
         },
+        Columns(columns) => {
+            let names = columns.to_vec();
+            let expr = node_to_expr(expression, expr_arena);
+            Ok(Arc::new(MultiColumnExpr::new(names, expr, schema.clone())))
+        },
         Column(column) => Ok(Arc::new(ColumnExpr::new(
             column.clone(),
             node_to_expr(expression, expr_arena),

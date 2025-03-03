@@ -209,6 +209,7 @@ fn aexpr_to_skip_batch_predicate_rec(
     }
 
     let specialized = match expr_arena.get(e) {
+        AExpr::Columns(_) => None,
         AExpr::Explode(_) => None,
         AExpr::Alias(_, _) => None,
         AExpr::Column(_) => None,

@@ -93,6 +93,7 @@ fn to_aexpr_impl_materialized_lit(
 ) -> PolarsResult<Node> {
     // Already convert `Lit Float and Lit Int` expressions that are not used in a binary / function expression.
     // This means they can be materialized immediately
+    println!("called : {:?}", expr);
     let e = match expr {
         Expr::Literal(lv @ LiteralValue::Int(_) | lv @ LiteralValue::Float(_)) => {
             let av = lv.to_any_value().unwrap();
@@ -124,6 +125,7 @@ pub(super) fn to_aexpr_impl(
     state: &mut ConversionContext,
 ) -> PolarsResult<Node> {
     let owned = Arc::unwrap_or_clone;
+    println!("expr : {:?}", expr);
     let v = match expr {
         Expr::Explode(expr) => AExpr::Explode(to_aexpr_impl(owned(expr), arena, state)?),
         Expr::Alias(e, name) => {
@@ -331,6 +333,18 @@ pub(super) fn to_aexpr_impl(
             }
             AExpr::Len
         },
+        Expr::Columns(names) => {
+            let cols_exprs = names
+                .iter()
+                .map(|name| to_aexpr_impl(Expr::Column(name.clone()), arena, state))
+                .collect::<PolarsResult<Vec<Node>>>()?;
+
+            if cols_exprs.len() == 1 {
+                AExpr::Column(names.iter().next().unwrap().clone())
+            } else {
+                AExpr::Columns(names.to_vec())
+            }
+        },
         #[cfg(feature = "dtype-struct")]
         e @ Expr::Field(_) => {
             polars_bail!(InvalidOperation: "'Expr: {}' not allowed in this context/location", e)
@@ -342,7 +356,6 @@ pub(super) fn to_aexpr_impl(
         | e @ Expr::KeepName(_)
         | e @ Expr::Exclude(_, _)
         | e @ Expr::RenameAlias { .. }
-        | e @ Expr::Columns { .. }
         | e @ Expr::DtypeColumn { .. }
         | e @ Expr::Selector(_) => {
             polars_bail!(InvalidOperation: "'Expr: {}' not allowed in this context/location", e)

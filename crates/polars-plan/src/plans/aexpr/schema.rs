@@ -163,6 +163,23 @@ impl AExpr {
                 name.clone(),
                 ctx.arena.get(*expr).to_field_impl(ctx, agg_list)?.dtype,
             )),
+            Columns(names) => {
+                *agg_list = false;
+                let fields: Vec<Field> = names
+                    .iter()
+                    .map(|name| {
+                        ctx.schema
+                            .get_field(name)
+                            .ok_or_else(|| PolarsError::ColumnNotFound(name.to_string().into()))
+                    })
+                    .collect::<PolarsResult<_>>()?;
+
+                if fields.len() == 1 {
+                    Ok(fields.into_iter().next().unwrap())
+                } else {
+                    Ok(fields[0].clone())
+                }
+            },
             Column(name) => ctx
                 .schema
                 .get_field(name)
